@@ -100,8 +100,8 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
       </Button>
       
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 bg-orange-50">
-          <h1 className="text-2xl font-semibold text-gray-900">
+        <div className="p-6 border-b border-gray-100 bg-blue-50">
+          <h1 className="text-2xl font-semibold text-dark-900">
             {isEditing ? "Edit Student" : "Register New Student"}
           </h1>
           <p className="text-gray-500 mt-1">
@@ -126,7 +126,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
                 placeholder="Enter student code"
                 required
                 disabled={isEditing}
-                className="border-gray-200 focus:ring-orange-500 focus:border-orange-500"
+                className="border-gray-200 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
@@ -141,7 +141,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
                 onChange={handleInputChange}
                 placeholder="Enter full name"
                 required
-                className="border-gray-200 focus:ring-orange-500 focus:border-orange-500"
+                className="border-gray-200 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
@@ -157,7 +157,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
                 onChange={handleInputChange}
                 placeholder="Enter email address"
                 required
-                className="border-gray-200 focus:ring-orange-500 focus:border-orange-500"
+                className="border-gray-200 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
@@ -171,7 +171,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
                 value={student.photo}
                 onChange={handleInputChange}
                 placeholder="Enter photo URL"
-                className="border-gray-200 focus:ring-orange-500 focus:border-orange-500"
+                className="border-gray-200 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
@@ -185,7 +185,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
                 value={student.github_link}
                 onChange={handleInputChange}
                 placeholder="Enter GitHub URL"
-                className="border-gray-200 focus:ring-orange-500 focus:border-orange-500"
+                className="border-gray-200 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
               onChange={handleInputChange}
               placeholder="Enter a brief description about the student"
               rows={4}
-              className="border-gray-200 focus:ring-orange-500 focus:border-orange-500"
+              className="border-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
@@ -217,7 +217,7 @@ const StudentForm = ({ isEditing = false }: StudentFormProps) => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
+              className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
             >
               {isLoading ? (
                 <>Processing...</>

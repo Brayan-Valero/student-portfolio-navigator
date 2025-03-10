@@ -54,7 +54,7 @@ const ResumeHeader = () => {
           <Button 
             type="submit" 
             size="sm"
-            className="ml-2 bg-orange-500 hover:bg-orange-600 text-white"
+            className="ml-2 bg-blue-500 hover:bg-blue-600 text-white"
           >
             View
           </Button>
@@ -126,7 +126,7 @@ const StudentResume = () => {
           <p className="text-gray-500 mt-2 mb-6">The student you're looking for doesn't exist or has been removed.</p>
           <Button 
             onClick={() => navigate("/")}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
           >
             Go to Student List
           </Button>
@@ -144,8 +144,8 @@ const StudentResume = () => {
         className="container mx-auto max-w-6xl px-4 pt-20 pb-12"
       >
         {/* Hero Section */}
-        <div className="relative h-[300px] md:h-[400px] mb-8 rounded-xl overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600">
-          <div className="absolute inset-0 opacity-10 pattern-dots pattern-gray-800 pattern-size-4"></div>
+        <div className="relative h-[300px] md:h-[400px] mb-8 rounded-xl overflow-hidden bg-gradient-to-r from-blue-800 to-blue-500">
+          <div className="absolute inset-0 opacity-10 pattern-dots pattern-dark-800 pattern-size-4"></div>
           
           <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center p-6">
             <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white overflow-hidden bg-white mb-6 shadow-lg">
@@ -158,8 +158,8 @@ const StudentResume = () => {
             
             <h1 className="text-3xl md:text-4xl font-bold mb-2 animate-fade-in">{student.name}</h1>
             <div className="flex items-center gap-1 mb-4">
-              <Code size={16} className="text-orange-200" />
-              <span className="text-orange-100">{student.code}</span>
+              <Code size={16} className="text-blue-200" />
+              <span className="text-blue-100">{student.code}</span>
             </div>
             
             <div className="flex flex-wrap justify-center gap-4">
@@ -192,8 +192,8 @@ const StudentResume = () => {
           {/* About Section */}
           <div className="lg:col-span-2 order-2 lg:order-1">
             <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm h-full">
-              <div className="p-6 border-b border-gray-100 bg-orange-50">
-                <h2 className="text-xl font-semibold text-gray-900">About Me</h2>
+              <div className="p-6 border-b border-gray-100 bg-blue-50">
+                <h2 className="text-xl font-semibold text-dark-900">About Me</h2>
               </div>
               
               <div className="p-6">
@@ -211,8 +211,8 @@ const StudentResume = () => {
           {/* Skills Section */}
           <div className="order-1 lg:order-2">
             <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm h-full">
-              <div className="p-6 border-b border-gray-100 bg-orange-50">
-                <h2 className="text-xl font-semibold text-gray-900">Technical Skills</h2>
+              <div className="p-6 border-b border-gray-100 bg-blue-50">
+                <h2 className="text-xl font-semibold text-dark-900">Technical Skills</h2>
               </div>
               
               <div className="p-6">
@@ -227,7 +227,7 @@ const StudentResume = () => {
                         style={{ animationDelay: `${index * 0.1}s` }}
                       >
                         <div className="flex justify-between items-center mb-2">
-                          <h3 className="font-medium text-gray-900">{tech.name}</h3>
+                          <h3 className="font-medium text-dark-900">{tech.name}</h3>
                           <span className="text-xs text-gray-500">Level {tech.level}/5</span>
                         </div>
                         
@@ -236,7 +236,7 @@ const StudentResume = () => {
                           
                           <div className="relative h-2 bg-gray-100 rounded-full flex-1 ml-4 overflow-hidden">
                             <div 
-                              className="absolute h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full"
+                              className="absolute h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full"
                               style={{ width: `${(tech.level / 5) * 100}%` }}
                             ></div>
                           </div>
