@@ -5,7 +5,7 @@ import {
   ArrowLeft, Plus, Edit, Trash2, Github, Mail, 
   BookOpen, ExternalLink, Check, X, Save
 } from "lucide-react";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";

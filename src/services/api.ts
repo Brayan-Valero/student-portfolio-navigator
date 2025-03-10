@@ -1,5 +1,4 @@
-
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 const API_URL = "https://ubsuofrvgbvtryjuzxhb.supabase.co/rest/v1";
 const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVic3VvZnJ2Z2J2dHJ5anV6eGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2Mjc4MDUsImV4cCI6MjA1NjIwMzgwNX0.-SOdP6tT6URg_Z9x-L9j3R4jw-mSNofm4zIiykmcGYA";

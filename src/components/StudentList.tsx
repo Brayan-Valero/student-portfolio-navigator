@@ -4,7 +4,7 @@ import { getStudents, Student } from "@/services/api";
 import { useNavigate } from "react-router-dom";
 import { Search, Edit, User, ExternalLink, ChevronRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import ImageWithFallback from "./ImageWithFallback";
