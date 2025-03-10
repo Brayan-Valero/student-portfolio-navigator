@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 const API_URL = "https://ubsuofrvgbvtryjuzxhb.supabase.co/rest/v1";
@@ -14,7 +15,7 @@ export interface Student {
 
 export interface Technology {
   id: number;
-  student_code: string;
+  code: string; // Changed from student_code to code
   name: string;
   level: number;
 }
@@ -100,7 +101,7 @@ export const updateStudent = async (code: string, student: Partial<Student>): Pr
 // Get technologies for a student
 export const getStudentTechnologies = async (studentCode: string): Promise<Technology[]> => {
   try {
-    const response = await fetch(`${API_URL}/technology?student_code=eq.${studentCode}&select=*`, {
+    const response = await fetch(`${API_URL}/technology?code=eq.${studentCode}&select=*`, {
       headers
     });
     

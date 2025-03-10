@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
@@ -29,11 +28,9 @@ const StudentDetail = () => {
   const [student, setStudent] = useState<Student | null>(null);
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   
-  // New technology form
   const [isAddingTech, setIsAddingTech] = useState(false);
   const [newTech, setNewTech] = useState({ name: "", level: 3 });
   
-  // Edit technology
   const [editingTechId, setEditingTechId] = useState<number | null>(null);
   const [editTech, setEditTech] = useState({ name: "", level: 1 });
 
@@ -72,7 +69,7 @@ const StudentDetail = () => {
 
     try {
       const tech = await addTechnology({
-        student_code: code!,
+        code: code!,
         name: newTech.name,
         level: newTech.level
       });
@@ -166,7 +163,6 @@ const StudentDetail = () => {
       </Button>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Student Info Card */}
         <Card className="border border-gray-100 shadow-sm overflow-hidden lg:col-span-1">
           <div className="h-32 bg-gradient-to-r from-orange-400 to-orange-600 relative">
             <div className="absolute top-4 right-4">
@@ -237,7 +233,6 @@ const StudentDetail = () => {
           )}
         </Card>
         
-        {/* Technologies Card */}
         <Card className="border border-gray-100 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div>
@@ -322,7 +317,6 @@ const StudentDetail = () => {
                     className="p-4 border border-gray-100 rounded-lg hover:border-orange-200 transition-all duration-300"
                   >
                     {editingTechId === tech.id ? (
-                      // Editing mode
                       <div className="space-y-3 animate-scale-in">
                         <Input
                           value={editTech.name}
@@ -360,7 +354,6 @@ const StudentDetail = () => {
                         </div>
                       </div>
                     ) : (
-                      // Display mode
                       <div className="flex items-center">
                         <div className="flex-1">
                           <h3 className="font-medium text-gray-900">{tech.name}</h3>
@@ -401,3 +394,4 @@ const StudentDetail = () => {
 };
 
 export default StudentDetail;
+
