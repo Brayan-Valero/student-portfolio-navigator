@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getStudents, Student } from "@/services/api";
 import { useNavigate } from "react-router-dom";
-import { Search, Edit, User, ExternalLink, ChevronRight } from "lucide-react";
+import { Search, Edit, User, ExternalLink, ChevronRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { Input } from "@/components/ui/input";
@@ -14,23 +14,26 @@ const StudentList = () => {
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getStudents();
-        setStudents(data);
-        setFilteredStudents(data);
-      } catch (error) {
-        console.error("Error fetching students:", error);
-        toast.error("Failed to load student data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchStudents = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getStudents();
+      setStudents(data);
+      setFilteredStudents(data);
+      toast.success("Student data loaded successfully");
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      toast.error("Failed to load student data");
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchStudents();
   }, []);
 
@@ -58,6 +61,11 @@ const StudentList = () => {
 
   const handleCreateStudent = () => {
     navigate("/create-student");
+  };
+
+  const handleRefreshData = () => {
+    setIsRefreshing(true);
+    fetchStudents();
   };
 
   const handleViewResume = (code: string) => {
@@ -109,10 +117,21 @@ const StudentList = () => {
             </div>
             
             <Button 
-              onClick={handleCreateStudent}
+              onClick={handleRefreshData}
               className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto transition-all duration-300 shadow-sm hover:shadow-md"
+              disabled={isRefreshing}
             >
-              Register New Student
+              {isRefreshing ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin mr-1" />
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw size={16} className="mr-1" />
+                  Refresh Data
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -136,27 +155,19 @@ const StudentList = () => {
             {filteredStudents.map((student, index) => (
               <Card 
                 key={student.code} 
-                className="overflow-hidden border border-gray-100 hover:border-blue-200 transition-all duration-300 shadow-sm hover:shadow-md"
+                className="overflow-hidden border border-gray-100 hover:border-blue-300 transition-all duration-300 shadow-sm hover:shadow-lg transform hover:-translate-y-1 hover:scale-[1.02] group"
                 style={{ 
                   animationDelay: `${index * 0.05}s`,
                   opacity: 0,
                   animation: 'fadeIn 0.5s ease-out forwards'
                 }}
               >
-                <div 
-                  className="h-32 bg-gradient-to-r from-blue-600 to-blue-400 relative"
-                >
-                  <div 
-                    className="absolute inset-0 flex items-center justify-center overflow-hidden"
-                    style={{ opacity: 0.2 }}
-                  >
-                    <div className="w-full h-full bg-pattern opacity-30"></div>
-                  </div>
-                  <div className="absolute top-3 right-3 flex gap-2">
+                <div className="p-6 flex flex-col items-center text-center relative">
+                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 bg-white/80 hover:bg-white shadow-sm"
+                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
                       onClick={() => handleEditStudent(student.code)}
                     >
                       <Edit size={14} className="text-blue-600" />
@@ -164,25 +175,22 @@ const StudentList = () => {
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 bg-white/80 hover:bg-white shadow-sm"
+                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
                       onClick={() => handleViewResume(student.code)}
                     >
                       <ExternalLink size={14} className="text-blue-600" />
                     </Button>
                   </div>
-                  <div className="absolute -bottom-12 left-4">
-                    <div className="h-24 w-24 rounded-full border-4 border-white overflow-hidden bg-white shadow-md">
-                      <ImageWithFallback
-                        src={student.photo}
-                        alt={student.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                  
+                  <div className="h-32 w-32 mb-4 rounded-full border-4 border-white overflow-hidden bg-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:border-blue-200">
+                    <ImageWithFallback
+                      src={student.photo}
+                      alt={student.name}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                </div>
-                
-                <div className="p-5 pt-16">
-                  <h3 className="font-medium text-lg text-dark-900 mb-1 line-clamp-1">{student.name}</h3>
+                  
+                  <h3 className="font-medium text-lg text-dark-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors duration-300">{student.name}</h3>
                   <p className="text-sm text-gray-500 mb-2 line-clamp-1">{student.email}</p>
                   <p className="text-xs text-gray-400 mb-4">Code: {student.code}</p>
                   
@@ -192,7 +200,7 @@ const StudentList = () => {
                   
                   <Button
                     variant="secondary"
-                    className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100"
+                    className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300"
                     onClick={() => handleViewStudent(student.code)}
                   >
                     View Profile
