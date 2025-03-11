@@ -32,6 +32,8 @@ const TechnologyForm = ({
   onCancel, 
   onTechChange 
 }: TechnologyFormProps) => {
+  const isLoadingTechnologies = availableTechnologies.length === 0;
+  
   return (
     <div className="space-y-4">
       <div>
@@ -40,21 +42,22 @@ const TechnologyForm = ({
           <Select
             value={currentTech.name}
             onValueChange={(value) => onTechChange({ ...currentTech, name: value })}
+            disabled={isLoadingTechnologies}
           >
             <SelectTrigger className="w-full border-gray-200 focus:ring-orange-500 focus:border-orange-500">
-              <SelectValue placeholder="Select a technology" />
+              <SelectValue placeholder={isLoadingTechnologies ? "Loading technologies..." : "Select a technology"} />
             </SelectTrigger>
             <SelectContent>
-              {availableTechnologies.length > 0 ? (
+              {isLoadingTechnologies ? (
+                <SelectItem value="loading" disabled>
+                  Loading technologies...
+                </SelectItem>
+              ) : (
                 availableTechnologies.map((tech) => (
                   <SelectItem key={tech.id} value={tech.name}>
                     {tech.name}
                   </SelectItem>
                 ))
-              ) : (
-                <SelectItem value="loading" disabled>
-                  Loading technologies...
-                </SelectItem>
               )}
             </SelectContent>
           </Select>
@@ -89,6 +92,7 @@ const TechnologyForm = ({
           size="sm"
           className="bg-orange-500 hover:bg-orange-600 text-white"
           onClick={onSave}
+          disabled={mode === "add" && (isLoadingTechnologies || !currentTech.name)}
         >
           {mode === "add" ? (
             <>

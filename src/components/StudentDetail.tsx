@@ -20,9 +20,25 @@ import TechnologiesCard from "./student/TechnologiesCard";
 const StudentDetail = () => {
   const { code } = useParams<{ code: string }>();
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingTechnologies, setIsLoadingTechnologies] = useState(true);
   const [student, setStudent] = useState<Student | null>(null);
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   const [availableTechnologies, setAvailableTechnologies] = useState<AvailableTechnology[]>([]);
+
+  const fetchAvailableTechnologies = async () => {
+    try {
+      setIsLoadingTechnologies(true);
+      console.log("Fetching available technologies...");
+      const availableTechData = await getAvailableTechnologies();
+      console.log("Available technologies received:", availableTechData);
+      setAvailableTechnologies(availableTechData);
+    } catch (error) {
+      console.error("Error fetching available technologies:", error);
+      toast.error("Failed to load available technologies");
+    } finally {
+      setIsLoadingTechnologies(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,11 +50,19 @@ const StudentDetail = () => {
         
         if (studentData) {
           setStudent(studentData);
-          const techData = await getStudentTechnologies(code);
-          setTechnologies(techData);
           
-          const availableTechData = await getAvailableTechnologies();
-          setAvailableTechnologies(availableTechData);
+          try {
+            console.log("Fetching student technologies...");
+            const techData = await getStudentTechnologies(code);
+            console.log("Student technologies received:", techData);
+            setTechnologies(techData);
+          } catch (techError) {
+            console.error("Error fetching student technologies:", techError);
+            toast.error("Failed to load student technologies");
+          }
+          
+          // Load available technologies
+          fetchAvailableTechnologies();
         } else {
           toast.error("Student not found");
         }
@@ -60,6 +84,7 @@ const StudentDetail = () => {
     }
 
     try {
+      console.log("Adding technology:", newTech);
       const tech = await addTechnology({
         code: code!,
         name: newTech.name,
@@ -67,6 +92,7 @@ const StudentDetail = () => {
       });
       
       if (tech) {
+        console.log("Technology added successfully:", tech);
         setTechnologies([...technologies, tech]);
         toast.success("Technology added successfully");
       }
@@ -142,6 +168,7 @@ const StudentDetail = () => {
           onAddTech={handleAddTech}
           onUpdateTech={handleUpdateTech}
           onDeleteTech={handleDeleteTech}
+          isLoading={isLoadingTechnologies}
         />
       </div>
     </div>

@@ -11,6 +11,10 @@ interface TechnologyListProps {
 }
 
 const TechnologyList = ({ technologies, onEdit, onDelete }: TechnologyListProps) => {
+  if (!technologies || technologies.length === 0) {
+    return null;
+  }
+  
   return (
     <div className="space-y-4">
       {technologies.map((tech) => (
