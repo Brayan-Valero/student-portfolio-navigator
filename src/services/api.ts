@@ -15,7 +15,7 @@ export interface Student {
 
 export interface Technology {
   id: number;
-  code: string; // Changed from student_code to code
+  code: string; 
   name: string;
   level: number;
 }
@@ -98,16 +98,27 @@ export const updateStudent = async (code: string, student: Partial<Student>): Pr
   }
 };
 
-// Get technologies for a student
+// Get technologies for a student - Log more information to help debug
 export const getStudentTechnologies = async (studentCode: string): Promise<Technology[]> => {
   try {
-    const response = await fetch(`${API_URL}/technology?code=eq.${studentCode}&select=*`, {
+    console.log(`Fetching technologies for student code: ${studentCode}`);
+    const url = `${API_URL}/technology?code=eq.${studentCode}&select=*`;
+    console.log(`API URL: ${url}`);
+    
+    const response = await fetch(url, {
       headers
     });
     
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+    if (!response.ok) {
+      console.error(`Error status: ${response.status}`);
+      throw new Error(`Error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(`Technologies found: ${data.length}`, data);
+    return data;
   } catch (error) {
+    console.error("Error fetching technologies:", error);
     return handleError(error) || [];
   }
 };
