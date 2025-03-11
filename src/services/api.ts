@@ -20,6 +20,11 @@ export interface Technology {
   level: number;
 }
 
+export interface AvailableTechnology {
+  id: number;
+  name: string;
+}
+
 // Default headers for all requests
 const headers = {
   "apikey": API_KEY,
@@ -119,6 +124,31 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
     return data;
   } catch (error) {
     console.error("Error fetching technologies:", error);
+    return handleError(error) || [];
+  }
+};
+
+// Get available technologies
+export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]> => {
+  try {
+    console.log("Fetching available technologies");
+    const url = `${API_URL}/available_technology?select=id,name`;
+    console.log(`API URL: ${url}`);
+    
+    const response = await fetch(url, {
+      headers
+    });
+    
+    if (!response.ok) {
+      console.error(`Error status: ${response.status}`);
+      throw new Error(`Error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(`Available technologies found: ${data.length}`, data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching available technologies:", error);
     return handleError(error) || [];
   }
 };

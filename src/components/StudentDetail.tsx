@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
@@ -9,14 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   getStudentByCode, 
   getStudentTechnologies, 
+  getAvailableTechnologies,
   addTechnology, 
   updateTechnology, 
   deleteTechnology, 
   Student, 
-  Technology 
+  Technology,
+  AvailableTechnology 
 } from "@/services/api";
 import ImageWithFallback from "./ImageWithFallback";
 import StarRating from "./StarRating";
@@ -27,6 +37,7 @@ const StudentDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [student, setStudent] = useState<Student | null>(null);
   const [technologies, setTechnologies] = useState<Technology[]>([]);
+  const [availableTechnologies, setAvailableTechnologies] = useState<AvailableTechnology[]>([]);
   
   const [isAddingTech, setIsAddingTech] = useState(false);
   const [newTech, setNewTech] = useState({ name: "", level: 3 });
@@ -46,6 +57,10 @@ const StudentDetail = () => {
           setStudent(studentData);
           const techData = await getStudentTechnologies(code);
           setTechnologies(techData);
+          
+          // Fetch available technologies
+          const availableTechData = await getAvailableTechnologies();
+          setAvailableTechnologies(availableTechData);
         } else {
           toast.error("Student not found");
           navigate("/");
@@ -62,8 +77,8 @@ const StudentDetail = () => {
   }, [code, navigate]);
 
   const handleAddTech = async () => {
-    if (!newTech.name.trim()) {
-      toast.error("Technology name is required");
+    if (!newTech.name) {
+      toast.error("Please select a technology");
       return;
     }
 
@@ -97,7 +112,7 @@ const StudentDetail = () => {
   };
 
   const handleUpdateTech = async (id: number) => {
-    if (!editTech.name.trim()) {
+    if (!editTech.name) {
       toast.error("Technology name is required");
       return;
     }
@@ -163,6 +178,7 @@ const StudentDetail = () => {
       </Button>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Student Info Card */}
         <Card className="border border-gray-100 shadow-sm overflow-hidden lg:col-span-1">
           <div className="h-32 bg-gradient-to-r from-orange-400 to-orange-600 relative">
             <div className="absolute top-4 right-4">
@@ -233,6 +249,7 @@ const StudentDetail = () => {
           )}
         </Card>
         
+        {/* Technologies Card */}
         <Card className="border border-gray-100 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div>
@@ -258,14 +275,28 @@ const StudentDetail = () => {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Add New Technology</h3>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="tech-name" className="text-sm text-gray-600">Technology Name</label>
-                    <Input
-                      id="tech-name"
+                    <label htmlFor="tech-select" className="text-sm text-gray-600 block mb-2">Technology</label>
+                    <Select
                       value={newTech.name}
-                      onChange={(e) => setNewTech({ ...newTech, name: e.target.value })}
-                      placeholder="e.g. JavaScript, Python, React"
-                      className="mt-1 border-gray-200 focus:ring-orange-500 focus:border-orange-500"
-                    />
+                      onValueChange={(value) => setNewTech({ ...newTech, name: value })}
+                    >
+                      <SelectTrigger className="w-full border-gray-200 focus:ring-orange-500 focus:border-orange-500">
+                        <SelectValue placeholder="Select a technology" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTechnologies.length > 0 ? (
+                          availableTechnologies.map((tech) => (
+                            <SelectItem key={tech.id} value={tech.name}>
+                              {tech.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="loading" disabled>
+                            Loading technologies...
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <div>
@@ -394,4 +425,3 @@ const StudentDetail = () => {
 };
 
 export default StudentDetail;
-
