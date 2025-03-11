@@ -123,51 +123,75 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
   }
 };
 
-// Add a technology for a student
+// Add a technology for a student - Add detailed logging
 export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise<Technology | null> => {
   try {
+    console.log("Adding technology:", technology);
     const response = await fetch(`${API_URL}/technology`, {
       method: "POST",
       headers,
       body: JSON.stringify(technology)
     });
     
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error status: ${response.status}, Details:`, errorText);
+      throw new Error(`Error: ${response.status} - ${errorText}`);
+    }
+    
     const data = await response.json();
+    console.log("Technology added successfully:", data);
     return data.length > 0 ? data[0] : null;
   } catch (error) {
+    console.error("Error adding technology:", error);
     return handleError(error);
   }
 };
 
-// Update a technology
+// Update a technology - Add detailed logging
 export const updateTechnology = async (id: number, technology: Partial<Technology>): Promise<Technology | null> => {
   try {
+    console.log(`Updating technology with ID ${id}:`, technology);
     const response = await fetch(`${API_URL}/technology?id=eq.${id}`, {
       method: "PATCH",
       headers,
       body: JSON.stringify(technology)
     });
     
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error status: ${response.status}, Details:`, errorText);
+      throw new Error(`Error: ${response.status} - ${errorText}`);
+    }
+    
     const data = await response.json();
+    console.log("Technology updated successfully:", data);
     return data.length > 0 ? data[0] : null;
   } catch (error) {
+    console.error("Error updating technology:", error);
     return handleError(error);
   }
 };
 
-// Delete a technology
+// Delete a technology - Add detailed logging
 export const deleteTechnology = async (id: number): Promise<boolean> => {
   try {
+    console.log(`Deleting technology with ID ${id}`);
     const response = await fetch(`${API_URL}/technology?id=eq.${id}`, {
       method: "DELETE",
       headers
     });
     
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error status: ${response.status}, Details:`, errorText);
+      throw new Error(`Error: ${response.status} - ${errorText}`);
+    }
+    
+    console.log("Technology deleted successfully");
     return true;
   } catch (error) {
+    console.error("Error deleting technology:", error);
     handleError(error);
     return false;
   }
