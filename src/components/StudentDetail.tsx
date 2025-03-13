@@ -11,7 +11,8 @@ import {
   deleteTechnology,
   Student,
   Technology,
-  AvailableTechnology
+  AvailableTechnology,
+  FALLBACK_TECHNOLOGIES
 } from "@/services/api";
 import StudentHeader from "./student/StudentHeader";
 import StudentInfoCard from "./student/StudentInfoCard";
@@ -32,11 +33,11 @@ const StudentDetail = () => {
       console.log("Fetching available technologies...");
       const availableTechData = await getAvailableTechnologies();
       console.log("Available technologies received:", availableTechData);
-      setAvailableTechnologies(availableTechData);
+      setAvailableTechnologies(availableTechData || FALLBACK_TECHNOLOGIES);
     } catch (error) {
       console.error("Error fetching available technologies:", error);
-      toast.error("Failed to load available technologies");
-      setError("Failed to load available technologies");
+      // Don't show error toast for expected 404 issues - just use fallback
+      setAvailableTechnologies(FALLBACK_TECHNOLOGIES);
     } finally {
       setIsLoadingTechnologies(false);
     }
@@ -65,7 +66,7 @@ const StudentDetail = () => {
             setTechnologies(techData || []);
           } catch (techError) {
             console.error("Error fetching student technologies:", techError);
-            toast.error("Failed to load student technologies");
+            // Don't show error toast for empty technologies - this is normal for new students
             setTechnologies([]);
           }
           

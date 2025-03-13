@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AvailableTechnology } from "@/services/api";
+import { AvailableTechnology, FALLBACK_TECHNOLOGIES } from "@/services/api";
 
 interface TechnologyFormProps {
   mode: "add" | "edit";
@@ -32,7 +32,10 @@ const TechnologyForm = ({
   onCancel, 
   onTechChange 
 }: TechnologyFormProps) => {
-  const isLoadingTechnologies = availableTechnologies.length === 0;
+  // Use fallback if no technologies are provided
+  const technologies = availableTechnologies.length > 0 
+    ? availableTechnologies 
+    : FALLBACK_TECHNOLOGIES;
   
   return (
     <div className="space-y-4">
@@ -42,33 +45,16 @@ const TechnologyForm = ({
           <Select
             value={currentTech.name}
             onValueChange={(value) => onTechChange({ ...currentTech, name: value })}
-            disabled={isLoadingTechnologies}
           >
             <SelectTrigger className="w-full border-gray-200 focus:ring-orange-500 focus:border-orange-500">
-              <SelectValue placeholder={isLoadingTechnologies ? "Loading technologies..." : "Select a technology"} />
+              <SelectValue placeholder="Select a technology" />
             </SelectTrigger>
             <SelectContent>
-              {isLoadingTechnologies ? (
-                <SelectItem value="loading" disabled>
-                  Loading technologies...
+              {technologies.map((tech) => (
+                <SelectItem key={tech.id} value={tech.name}>
+                  {tech.name}
                 </SelectItem>
-              ) : (
-                // If we have no technologies from the API, provide a fallback list
-                (availableTechnologies.length > 0 ? availableTechnologies : [
-                  { id: 1, name: "JavaScript" },
-                  { id: 2, name: "TypeScript" },
-                  { id: 3, name: "React" },
-                  { id: 4, name: "Node.js" },
-                  { id: 5, name: "Python" },
-                  { id: 6, name: "Java" },
-                  { id: 7, name: "C#" },
-                  { id: 8, name: "PHP" }
-                ]).map((tech) => (
-                  <SelectItem key={tech.id} value={tech.name}>
-                    {tech.name}
-                  </SelectItem>
-                ))
-              )}
+              ))}
             </SelectContent>
           </Select>
         ) : (

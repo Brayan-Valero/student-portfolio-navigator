@@ -25,6 +25,20 @@ export interface AvailableTechnology {
   name: string;
 }
 
+// Default fallback technologies if the API fails
+export const FALLBACK_TECHNOLOGIES: AvailableTechnology[] = [
+  { id: 1, name: "JavaScript" },
+  { id: 2, name: "TypeScript" },
+  { id: 3, name: "React" },
+  { id: 4, name: "Node.js" },
+  { id: 5, name: "Python" },
+  { id: 6, name: "Java" },
+  { id: 7, name: "C#" },
+  { id: 8, name: "PHP" },
+  { id: 9, name: "Ruby" },
+  { id: 10, name: "Go" }
+];
+
 // Default headers for all requests
 const headers = {
   "apikey": API_KEY,
@@ -40,7 +54,7 @@ const handleError = (error: any) => {
   // Don't show toast errors for 404 on available_technology (we know it doesn't exist)
   if (error && error.message && error.message.includes("available_technology")) {
     console.log("Ignoring known 404 error for available_technology");
-    return [];
+    return null;
   }
   
   toast.error("An error occurred while fetching data");
@@ -72,7 +86,7 @@ export const getStudentByCode = async (code: string): Promise<Student | null> =>
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error) as Student | null;
+    return handleError(error) as null;
   }
 };
 
@@ -89,7 +103,7 @@ export const createStudent = async (student: Student): Promise<Student | null> =
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error) as Student | null;
+    return handleError(error) as null;
   }
 };
 
@@ -106,7 +120,7 @@ export const updateStudent = async (code: string, student: Partial<Student>): Pr
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error) as Student | null;
+    return handleError(error) as null;
   }
 };
 
@@ -131,11 +145,11 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
     return data;
   } catch (error) {
     console.error("Error fetching technologies:", error);
-    return handleError(error) as Technology[] || [];
+    return [] as Technology[];
   }
 };
 
-// Get available technologies
+// Get available technologies with fallback
 export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]> => {
   try {
     console.log("Fetching available technologies");
@@ -148,6 +162,11 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
     
     if (!response.ok) {
       console.error(`Error status: ${response.status}`);
+      // If 404, use fallback technologies instead of throwing
+      if (response.status === 404) {
+        console.log("Using fallback technologies list");
+        return FALLBACK_TECHNOLOGIES;
+      }
       throw new Error(`Error: ${response.status}`);
     }
     
@@ -156,7 +175,9 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
     return data;
   } catch (error) {
     console.error("Error fetching available technologies:", error);
-    return [];
+    console.log("Using fallback technologies after error");
+    // Always return fallback technologies when there's an error
+    return FALLBACK_TECHNOLOGIES;
   }
 };
 
@@ -181,7 +202,7 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error adding technology:", error);
-    return handleError(error) as Technology | null;
+    return null;
   }
 };
 
@@ -206,7 +227,7 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error updating technology:", error);
-    return handleError(error) as Technology | null;
+    return null;
   }
 };
 
