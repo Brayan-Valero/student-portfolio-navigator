@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 const API_URL = "https://ubsuofrvgbvtryjuzxhb.supabase.co/rest/v1";
@@ -36,6 +35,13 @@ const headers = {
 // Error handling
 const handleError = (error: any) => {
   console.error("API Error:", error);
+  
+  // Don't show toast errors for 404 on available_technology (we know it doesn't exist)
+  if (error && error.message && error.message.includes("available_technology")) {
+    console.log("Ignoring known 404 error for available_technology");
+    return [];
+  }
+  
   toast.error("An error occurred while fetching data");
   return null;
 };
@@ -149,7 +155,7 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
     return data;
   } catch (error) {
     console.error("Error fetching available technologies:", error);
-    return handleError(error) || [];
+    return [];
   }
 };
 
