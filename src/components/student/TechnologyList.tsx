@@ -11,7 +11,17 @@ interface TechnologyListProps {
 }
 
 const TechnologyList = ({ technologies, onEdit, onDelete }: TechnologyListProps) => {
-  if (!technologies || technologies.length === 0) {
+  // Check if technologies is undefined or null and return appropriate UI
+  if (!technologies) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-gray-500">Unable to load technologies</p>
+      </div>
+    );
+  }
+  
+  // Check if the technologies array is empty
+  if (technologies.length === 0) {
     return null;
   }
   

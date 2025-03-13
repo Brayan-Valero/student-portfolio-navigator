@@ -24,6 +24,7 @@ const StudentDetail = () => {
   const [student, setStudent] = useState<Student | null>(null);
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   const [availableTechnologies, setAvailableTechnologies] = useState<AvailableTechnology[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchAvailableTechnologies = async () => {
     try {
@@ -35,6 +36,7 @@ const StudentDetail = () => {
     } catch (error) {
       console.error("Error fetching available technologies:", error);
       toast.error("Failed to load available technologies");
+      setError("Failed to load available technologies");
     } finally {
       setIsLoadingTechnologies(false);
     }
@@ -42,10 +44,15 @@ const StudentDetail = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!code) return;
+      if (!code) {
+        setError("Student code is missing");
+        setIsLoading(false);
+        return;
+      }
       
       try {
         setIsLoading(true);
+        setError(null);
         const studentData = await getStudentByCode(code);
         
         if (studentData) {
@@ -55,20 +62,23 @@ const StudentDetail = () => {
             console.log("Fetching student technologies...");
             const techData = await getStudentTechnologies(code);
             console.log("Student technologies received:", techData);
-            setTechnologies(techData);
+            setTechnologies(techData || []);
           } catch (techError) {
             console.error("Error fetching student technologies:", techError);
             toast.error("Failed to load student technologies");
+            setTechnologies([]);
           }
           
           // Load available technologies
           fetchAvailableTechnologies();
         } else {
+          setError("Student not found");
           toast.error("Student not found");
         }
       } catch (error) {
         console.error("Error fetching student data:", error);
         toast.error("Failed to load student data");
+        setError("Failed to load student data");
       } finally {
         setIsLoading(false);
       }
@@ -85,15 +95,22 @@ const StudentDetail = () => {
 
     try {
       console.log("Adding technology:", newTech);
+      
+      // Validate that code exists before proceeding
+      if (!code) {
+        toast.error("Student code is missing");
+        return;
+      }
+      
       const tech = await addTechnology({
-        code: code!,
+        code: code,
         name: newTech.name,
         level: newTech.level
       });
       
       if (tech) {
         console.log("Technology added successfully:", tech);
-        setTechnologies([...technologies, tech]);
+        setTechnologies(prevTechnologies => [...prevTechnologies, tech]);
         toast.success("Technology added successfully");
       }
     } catch (error) {
@@ -152,8 +169,26 @@ const StudentDetail = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="container px-4 py-8 mx-auto max-w-5xl">
+        <div className="p-8 text-center">
+          <h2 className="text-2xl font-semibold text-red-500 mb-4">Error</h2>
+          <p className="text-gray-700">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!student) {
-    return null;
+    return (
+      <div className="container px-4 py-8 mx-auto max-w-5xl">
+        <div className="p-8 text-center">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Student Not Found</h2>
+          <p className="text-gray-500">The requested student could not be found.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
