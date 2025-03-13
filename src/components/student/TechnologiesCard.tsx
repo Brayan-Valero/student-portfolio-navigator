@@ -45,6 +45,9 @@ const TechnologiesCard = ({
     setCurrentTech({ name: tech.name, level: tech.level });
   };
 
+  // Make sure technologies is always an array
+  const safelyRenderTechnologies = Array.isArray(technologies) ? technologies : [];
+
   return (
     <Card className="border border-gray-100 shadow-sm lg:col-span-2">
       <div className="flex items-center justify-between p-6 border-b border-gray-100">
@@ -89,7 +92,7 @@ const TechnologiesCard = ({
               </div>
             )}
             
-            {technologies.length === 0 ? (
+            {safelyRenderTechnologies.length === 0 ? (
               <div className="text-center py-12">
                 <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">No technologies added</h3>
@@ -99,7 +102,7 @@ const TechnologiesCard = ({
               </div>
             ) : (
               <TechnologyList
-                technologies={technologies}
+                technologies={safelyRenderTechnologies}
                 onEdit={startEditingTech}
                 onDelete={onDeleteTech}
               />

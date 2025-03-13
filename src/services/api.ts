@@ -86,7 +86,7 @@ export const getStudentByCode = async (code: string): Promise<Student | null> =>
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error) as null;
+    return handleError(error) as Student | null;
   }
 };
 
@@ -103,7 +103,7 @@ export const createStudent = async (student: Student): Promise<Student | null> =
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error) as null;
+    return handleError(error) as Student | null;
   }
 };
 
@@ -120,11 +120,11 @@ export const updateStudent = async (code: string, student: Partial<Student>): Pr
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error) as null;
+    return handleError(error) as Student | null;
   }
 };
 
-// Get technologies for a student - Log more information to help debug
+// Get technologies for a student - Improved error handling and debugging
 export const getStudentTechnologies = async (studentCode: string): Promise<Technology[]> => {
   try {
     console.log(`Fetching technologies for student code: ${studentCode}`);
@@ -142,9 +142,23 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
     
     const data = await response.json();
     console.log(`Technologies found: ${data.length}`, data);
-    return data;
+    
+    // Validate that each item in the response has the expected fields
+    const validTechnologies = data.filter((tech: any) => 
+      tech && typeof tech.id === 'number' && 
+      typeof tech.code === 'string' && 
+      typeof tech.name === 'string' && 
+      typeof tech.level === 'number'
+    );
+    
+    if (validTechnologies.length !== data.length) {
+      console.warn(`Found ${data.length - validTechnologies.length} technologies with invalid format`);
+    }
+    
+    return validTechnologies;
   } catch (error) {
     console.error("Error fetching technologies:", error);
+    // Don't show error toast for empty technologies - this is normal for new students
     return [] as Technology[];
   }
 };
@@ -185,6 +199,14 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
 export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise<Technology | null> => {
   try {
     console.log("Adding technology:", technology);
+    
+    // Validate required fields before sending
+    if (!technology.code || !technology.name || typeof technology.level !== 'number') {
+      console.error("Invalid technology data:", technology);
+      toast.error("Invalid technology data");
+      return null;
+    }
+    
     const response = await fetch(`${API_URL}/technology`, {
       method: "POST",
       headers,
@@ -202,6 +224,7 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error adding technology:", error);
+    toast.error("Failed to add technology");
     return null;
   }
 };
@@ -227,6 +250,7 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error updating technology:", error);
+    toast.error("Failed to update technology");
     return null;
   }
 };
@@ -250,7 +274,7 @@ export const deleteTechnology = async (id: number): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error("Error deleting technology:", error);
-    handleError(error);
+    toast.error("Failed to delete technology");
     return false;
   }
 };

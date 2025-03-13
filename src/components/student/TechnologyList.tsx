@@ -12,7 +12,7 @@ interface TechnologyListProps {
 
 const TechnologyList = ({ technologies, onEdit, onDelete }: TechnologyListProps) => {
   // Check if technologies is undefined or null and return appropriate UI
-  if (!technologies) {
+  if (!technologies || !Array.isArray(technologies)) {
     return (
       <div className="text-center py-6">
         <p className="text-gray-500">Unable to load technologies</p>

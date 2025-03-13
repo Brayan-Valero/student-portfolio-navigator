@@ -33,7 +33,7 @@ const TechnologyForm = ({
   onTechChange 
 }: TechnologyFormProps) => {
   // Use fallback if no technologies are provided
-  const technologies = availableTechnologies.length > 0 
+  const technologies = availableTechnologies && availableTechnologies.length > 0 
     ? availableTechnologies 
     : FALLBACK_TECHNOLOGIES;
   
@@ -46,7 +46,7 @@ const TechnologyForm = ({
             value={currentTech.name}
             onValueChange={(value) => onTechChange({ ...currentTech, name: value })}
           >
-            <SelectTrigger className="w-full border-gray-200 focus:ring-orange-500 focus:border-orange-500">
+            <SelectTrigger id="tech-select" className="w-full border-gray-200 focus:ring-orange-500 focus:border-orange-500">
               <SelectValue placeholder="Select a technology" />
             </SelectTrigger>
             <SelectContent>
