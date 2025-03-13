@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 const API_URL = "https://ubsuofrvgbvtryjuzxhb.supabase.co/rest/v1";
@@ -56,7 +57,7 @@ export const getStudents = async (): Promise<Student[]> => {
     if (!response.ok) throw new Error(`Error: ${response.status}`);
     return await response.json();
   } catch (error) {
-    return handleError(error) || [];
+    return handleError(error) as Student[] || [];
   }
 };
 
@@ -71,7 +72,7 @@ export const getStudentByCode = async (code: string): Promise<Student | null> =>
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error);
+    return handleError(error) as Student | null;
   }
 };
 
@@ -88,7 +89,7 @@ export const createStudent = async (student: Student): Promise<Student | null> =
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error);
+    return handleError(error) as Student | null;
   }
 };
 
@@ -105,7 +106,7 @@ export const updateStudent = async (code: string, student: Partial<Student>): Pr
     const data = await response.json();
     return data.length > 0 ? data[0] : null;
   } catch (error) {
-    return handleError(error);
+    return handleError(error) as Student | null;
   }
 };
 
@@ -130,7 +131,7 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
     return data;
   } catch (error) {
     console.error("Error fetching technologies:", error);
-    return handleError(error) || [];
+    return handleError(error) as Technology[] || [];
   }
 };
 
@@ -180,7 +181,7 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error adding technology:", error);
-    return handleError(error);
+    return handleError(error) as Technology | null;
   }
 };
 
@@ -205,7 +206,7 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error updating technology:", error);
-    return handleError(error);
+    return handleError(error) as Technology | null;
   }
 };
 
