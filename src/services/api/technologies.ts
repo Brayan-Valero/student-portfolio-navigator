@@ -1,3 +1,4 @@
+
 import { API_URL, headers, handleError } from './config';
 import { Technology, AvailableTechnology, FALLBACK_TECHNOLOGIES } from './types';
 import { toast } from "sonner";
@@ -21,15 +22,16 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
     const data = await response.json();
     console.log(`Technologies found: ${data.length}`, data);
     
-    // Map the data to match our front-end model if needed
+    // Map the data to match our front-end model
     const technologies = data.map((tech: any) => ({
       id: tech.id,
       code: tech.code,
       name: tech.name,
-      // If level doesn't exist in the database, default to skill_level or a default value
-      level: tech.level || tech.skill_level || 3
+      // Map skill_level from the database to level in our frontend model
+      level: tech.level !== undefined ? tech.level : tech.skill_level
     }));
     
+    console.log("Mapped technologies:", technologies);
     return technologies;
   } catch (error) {
     console.error("Error fetching technologies:", error);
@@ -69,7 +71,7 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
   }
 };
 
-// Fix the add technology function to match the database schema
+// Add technology with correct field mapping
 export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise<Technology | null> => {
   try {
     console.log("Adding technology:", technology);
@@ -82,7 +84,7 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     }
     
     // Create the payload based on the database schema
-    // If the database uses skill_level instead of level, we need to adapt
+    // The database uses skill_level instead of level
     const payload = {
       code: technology.code,
       name: technology.name,
@@ -112,7 +114,7 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
         id: data[0].id,
         code: data[0].code,
         name: data[0].name,
-        level: data[0].skill_level || 3 // Use skill_level from the database or default
+        level: data[0].skill_level || 3 // Map skill_level to level
       };
     }
     return null;
@@ -123,7 +125,7 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
   }
 };
 
-// Update update technology function to match the database schema
+// Update technology with correct field mapping
 export const updateTechnology = async (id: number, technology: Partial<Technology>): Promise<Technology | null> => {
   try {
     console.log(`Updating technology with ID ${id}:`, technology);
