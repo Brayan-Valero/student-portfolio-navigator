@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AvailableTechnology, FALLBACK_TECHNOLOGIES } from "@/services/api";
 import { toast } from "sonner";
 
@@ -49,10 +49,17 @@ const TechnologyForm = ({
 
     try {
       setIsSubmitting(true);
+      
+      // Log current tech before saving
+      console.log("Saving technology:", currentTech);
+      
       await onSave();
+      
+      // Show success message
+      toast.success(`Technology ${mode === "add" ? "added" : "updated"} successfully`);
     } catch (error) {
-      console.error("Error saving technology:", error);
-      toast.error("Failed to save technology");
+      console.error(`Error ${mode === "add" ? "adding" : "saving"} technology:`, error);
+      toast.error(`Failed to ${mode === "add" ? "add" : "save"} technology`);
     } finally {
       setIsSubmitting(false);
     }

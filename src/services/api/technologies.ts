@@ -2,7 +2,7 @@ import { API_URL, headers, handleError } from './config';
 import { Technology, AvailableTechnology, FALLBACK_TECHNOLOGIES } from './types';
 import { toast } from "sonner";
 
-// Get technologies for a student - Improved error handling and debugging
+// Get technologies for a student
 export const getStudentTechnologies = async (studentCode: string): Promise<Technology[]> => {
   try {
     console.log(`Fetching technologies for student code: ${studentCode}`);
@@ -21,22 +21,18 @@ export const getStudentTechnologies = async (studentCode: string): Promise<Techn
     const data = await response.json();
     console.log(`Technologies found: ${data.length}`, data);
     
-    // Validate that each item in the response has the expected fields
-    const validTechnologies = data.filter((tech: any) => 
-      tech && typeof tech.id === 'number' && 
-      typeof tech.code === 'string' && 
-      typeof tech.name === 'string' && 
-      typeof tech.level === 'number'
-    );
+    // Map the data to match our front-end model if needed
+    const technologies = data.map((tech: any) => ({
+      id: tech.id,
+      code: tech.code,
+      name: tech.name,
+      // If level doesn't exist in the database, default to skill_level or a default value
+      level: tech.level || tech.skill_level || 3
+    }));
     
-    if (validTechnologies.length !== data.length) {
-      console.warn(`Found ${data.length - validTechnologies.length} technologies with invalid format`);
-    }
-    
-    return validTechnologies;
+    return technologies;
   } catch (error) {
     console.error("Error fetching technologies:", error);
-    // Don't show error toast for empty technologies - this is normal for new students
     return [] as Technology[];
   }
 };
@@ -73,27 +69,32 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
   }
 };
 
-// Add a technology for a student - Improve error handling
+// Fix the add technology function to match the database schema
 export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise<Technology | null> => {
   try {
     console.log("Adding technology:", technology);
     
-    // Validate required fields before sending
-    if (!technology.code || !technology.name || typeof technology.level !== 'number') {
+    // Validate required fields
+    if (!technology.code || !technology.name) {
       console.error("Invalid technology data:", technology);
       toast.error("Invalid technology data");
       return null;
     }
     
-    // Add additional debugging
-    console.log("Sending request to:", `${API_URL}/technology`);
-    console.log("With headers:", JSON.stringify(headers));
-    console.log("With body:", JSON.stringify(technology));
+    // Create the payload based on the database schema
+    // If the database uses skill_level instead of level, we need to adapt
+    const payload = {
+      code: technology.code,
+      name: technology.name,
+      skill_level: technology.level // Rename to match database schema
+    };
+    
+    console.log("Sending payload to API:", payload);
     
     const response = await fetch(`${API_URL}/technology`, {
       method: "POST",
       headers,
-      body: JSON.stringify(technology)
+      body: JSON.stringify(payload)
     });
     
     if (!response.ok) {
@@ -104,7 +105,17 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     
     const data = await response.json();
     console.log("Technology added successfully:", data);
-    return data.length > 0 ? data[0] : null;
+    
+    if (data.length > 0) {
+      // Map the response to match our front-end model
+      return {
+        id: data[0].id,
+        code: data[0].code,
+        name: data[0].name,
+        level: data[0].skill_level || 3 // Use skill_level from the database or default
+      };
+    }
+    return null;
   } catch (error) {
     console.error("Error adding technology:", error);
     toast.error("Failed to add technology. Please try again.");
@@ -112,14 +123,22 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
   }
 };
 
-// Update a technology - Keep existing code
+// Update update technology function to match the database schema
 export const updateTechnology = async (id: number, technology: Partial<Technology>): Promise<Technology | null> => {
   try {
     console.log(`Updating technology with ID ${id}:`, technology);
+    
+    // Prepare the payload based on database schema
+    const payload: any = {};
+    if (technology.name) payload.name = technology.name;
+    if (technology.level !== undefined) payload.skill_level = technology.level;
+    
+    console.log("Update payload:", payload);
+    
     const response = await fetch(`${API_URL}/technology?id=eq.${id}`, {
       method: "PATCH",
       headers,
-      body: JSON.stringify(technology)
+      body: JSON.stringify(payload)
     });
     
     if (!response.ok) {
@@ -130,7 +149,17 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
     
     const data = await response.json();
     console.log("Technology updated successfully:", data);
-    return data.length > 0 ? data[0] : null;
+    
+    if (data.length > 0) {
+      // Map the response to match our front-end model
+      return {
+        id: data[0].id,
+        code: data[0].code,
+        name: data[0].name,
+        level: data[0].skill_level || technology.level || 3
+      };
+    }
+    return null;
   } catch (error) {
     console.error("Error updating technology:", error);
     toast.error("Failed to update technology");
@@ -138,7 +167,7 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
   }
 };
 
-// Delete a technology - Keep existing code
+// Delete technology function remains the same
 export const deleteTechnology = async (id: number): Promise<boolean> => {
   try {
     console.log(`Deleting technology with ID ${id}`);

@@ -9,11 +9,14 @@ export interface Student {
   description: string;
 }
 
+// Updated Technology interface to handle both database and front-end models
 export interface Technology {
   id: number;
   code: string; 
   name: string;
   level: number;
+  // Optional field that might exist in the database
+  skill_level?: number;
 }
 
 export interface AvailableTechnology {

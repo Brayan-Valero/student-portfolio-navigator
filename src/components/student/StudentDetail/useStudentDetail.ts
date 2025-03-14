@@ -31,8 +31,21 @@ export const useStudentDetail = (code: string | undefined) => {
       setAvailableTechnologies(availableTechData || FALLBACK_TECHNOLOGIES);
     } catch (error) {
       console.error("Error fetching available technologies:", error);
-      // Don't show error toast for expected 404 issues - just use fallback
       setAvailableTechnologies(FALLBACK_TECHNOLOGIES);
+    } finally {
+      setIsLoadingTechnologies(false);
+    }
+  };
+
+  const fetchStudentTechnologies = async (studentCode: string) => {
+    try {
+      console.log("Fetching student technologies...");
+      const techData = await getStudentTechnologies(studentCode);
+      console.log("Student technologies received:", techData);
+      setTechnologies(techData || []);
+    } catch (techError) {
+      console.error("Error fetching student technologies:", techError);
+      setTechnologies([]);
     } finally {
       setIsLoadingTechnologies(false);
     }
@@ -53,20 +66,8 @@ export const useStudentDetail = (code: string | undefined) => {
         
         if (studentData) {
           setStudent(studentData);
-          
-          try {
-            console.log("Fetching student technologies...");
-            const techData = await getStudentTechnologies(code);
-            console.log("Student technologies received:", techData);
-            setTechnologies(techData || []);
-          } catch (techError) {
-            console.error("Error fetching student technologies:", techError);
-            // Don't show error toast for empty technologies - this is normal for new students
-            setTechnologies([]);
-          }
-          
-          // Load available technologies
-          fetchAvailableTechnologies();
+          await fetchStudentTechnologies(code);
+          await fetchAvailableTechnologies();
         } else {
           setError("Student not found");
           toast.error("Student not found");
@@ -83,6 +84,13 @@ export const useStudentDetail = (code: string | undefined) => {
     fetchData();
   }, [code]);
 
+  // Refresh technologies after adding/updating/deleting
+  const refreshTechnologies = async () => {
+    if (code) {
+      await fetchStudentTechnologies(code);
+    }
+  };
+
   const handleAddTech = async (newTech: { name: string; level: number }) => {
     if (!newTech.name) {
       toast.error("Please select a technology");
@@ -98,6 +106,9 @@ export const useStudentDetail = (code: string | undefined) => {
         return;
       }
       
+      // Set loading state
+      setIsLoadingTechnologies(true);
+      
       const tech = await addTechnology({
         code: code,
         name: newTech.name,
@@ -106,15 +117,15 @@ export const useStudentDetail = (code: string | undefined) => {
       
       if (tech) {
         console.log("Technology added successfully:", tech);
-        setTechnologies(prevTechnologies => [...prevTechnologies, tech]);
+        // Refresh technologies to get the updated list
+        await refreshTechnologies();
         toast.success("Technology added successfully");
-      } else {
-        throw new Error("Failed to add technology");
       }
     } catch (error) {
       console.error("Error adding technology:", error);
       toast.error("Failed to add technology");
-      throw error; // Rethrow to allow the component to handle it
+    } finally {
+      setIsLoadingTechnologies(false);
     }
   };
 
@@ -125,40 +136,42 @@ export const useStudentDetail = (code: string | undefined) => {
     }
 
     try {
+      setIsLoadingTechnologies(true);
+      
       const updated = await updateTechnology(id, {
         name: updatedTech.name,
         level: updatedTech.level
       });
       
       if (updated) {
-        setTechnologies(
-          technologies.map(tech => tech.id === id ? updated : tech)
-        );
+        // Refresh technologies to get the updated list
+        await refreshTechnologies();
         toast.success("Technology updated successfully");
-      } else {
-        throw new Error("Failed to update technology");
       }
     } catch (error) {
       console.error("Error updating technology:", error);
       toast.error("Failed to update technology");
-      throw error;
+    } finally {
+      setIsLoadingTechnologies(false);
     }
   };
 
   const handleDeleteTech = async (id: number) => {
     try {
+      setIsLoadingTechnologies(true);
+      
       const success = await deleteTechnology(id);
       
       if (success) {
-        setTechnologies(technologies.filter(tech => tech.id !== id));
+        // Refresh technologies to get the updated list
+        await refreshTechnologies();
         toast.success("Technology deleted successfully");
-      } else {
-        throw new Error("Failed to delete technology");
       }
     } catch (error) {
       console.error("Error deleting technology:", error);
       toast.error("Failed to delete technology");
-      throw error;
+    } finally {
+      setIsLoadingTechnologies(false);
     }
   };
 
