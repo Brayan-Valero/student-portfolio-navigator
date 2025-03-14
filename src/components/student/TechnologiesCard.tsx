@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { BookOpen, Plus } from "lucide-react";
 import TechnologyForm from "./TechnologyForm";
 import TechnologyList from "./TechnologyList";
+import { toast } from "sonner";
 
 interface TechnologiesCardProps {
   technologies: Technology[];
@@ -27,17 +28,36 @@ const TechnologiesCard = ({
   const [isAddingTech, setIsAddingTech] = useState(false);
   const [editingTechId, setEditingTechId] = useState<number | null>(null);
   const [currentTech, setCurrentTech] = useState({ name: "", level: 3 });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddTech = async () => {
-    await onAddTech(currentTech);
-    setIsAddingTech(false);
-    setCurrentTech({ name: "", level: 3 });
+    try {
+      setIsSubmitting(true);
+      await onAddTech(currentTech);
+      setIsAddingTech(false);
+      setCurrentTech({ name: "", level: 3 });
+      toast.success("Technology added successfully");
+    } catch (error) {
+      console.error("Error adding technology:", error);
+      toast.error("Failed to add technology");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleUpdateTech = async (id: number) => {
-    await onUpdateTech(id, currentTech);
-    setEditingTechId(null);
-    setCurrentTech({ name: "", level: 1 });
+    try {
+      setIsSubmitting(true);
+      await onUpdateTech(id, currentTech);
+      setEditingTechId(null);
+      setCurrentTech({ name: "", level: 3 });
+      toast.success("Technology updated successfully");
+    } catch (error) {
+      console.error("Error updating technology:", error);
+      toast.error("Failed to update technology");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const startEditingTech = (tech: Technology) => {
@@ -61,6 +81,7 @@ const TechnologiesCard = ({
             variant="outline"
             className="gap-2 border-orange-200 text-orange-600 hover:bg-orange-50"
             onClick={() => setIsAddingTech(true)}
+            disabled={isSubmitting}
           >
             <Plus size={16} />
             Add Technology
@@ -118,7 +139,7 @@ const TechnologiesCard = ({
                   onSave={() => handleUpdateTech(editingTechId)}
                   onCancel={() => {
                     setEditingTechId(null);
-                    setCurrentTech({ name: "", level: 1 });
+                    setCurrentTech({ name: "", level: 3 });
                   }}
                   onTechChange={setCurrentTech}
                 />

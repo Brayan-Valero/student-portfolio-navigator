@@ -1,4 +1,3 @@
-
 import { API_URL, headers, handleError } from './config';
 import { Technology, AvailableTechnology, FALLBACK_TECHNOLOGIES } from './types';
 import { toast } from "sonner";
@@ -74,7 +73,7 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
   }
 };
 
-// Add a technology for a student - Add detailed logging
+// Add a technology for a student - Improve error handling
 export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise<Technology | null> => {
   try {
     console.log("Adding technology:", technology);
@@ -85,6 +84,11 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
       toast.error("Invalid technology data");
       return null;
     }
+    
+    // Add additional debugging
+    console.log("Sending request to:", `${API_URL}/technology`);
+    console.log("With headers:", JSON.stringify(headers));
+    console.log("With body:", JSON.stringify(technology));
     
     const response = await fetch(`${API_URL}/technology`, {
       method: "POST",
@@ -103,12 +107,12 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     return data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error("Error adding technology:", error);
-    toast.error("Failed to add technology");
+    toast.error("Failed to add technology. Please try again.");
     return null;
   }
 };
 
-// Update a technology - Add detailed logging
+// Update a technology - Keep existing code
 export const updateTechnology = async (id: number, technology: Partial<Technology>): Promise<Technology | null> => {
   try {
     console.log(`Updating technology with ID ${id}:`, technology);
@@ -134,7 +138,7 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
   }
 };
 
-// Delete a technology - Add detailed logging
+// Delete a technology - Keep existing code
 export const deleteTechnology = async (id: number): Promise<boolean> => {
   try {
     console.log(`Deleting technology with ID ${id}`);

@@ -38,46 +38,50 @@ export const useStudentDetail = (code: string | undefined) => {
     }
   };
 
-  const fetchStudentData = async () => {
-    if (!code) {
-      setError("Student code is missing");
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      setIsLoading(true);
-      setError(null);
-      const studentData = await getStudentByCode(code);
-      
-      if (studentData) {
-        setStudent(studentData);
-        
-        try {
-          console.log("Fetching student technologies...");
-          const techData = await getStudentTechnologies(code);
-          console.log("Student technologies received:", techData);
-          setTechnologies(techData || []);
-        } catch (techError) {
-          console.error("Error fetching student technologies:", techError);
-          // Don't show error toast for empty technologies - this is normal for new students
-          setTechnologies([]);
-        }
-        
-        // Load available technologies
-        fetchAvailableTechnologies();
-      } else {
-        setError("Student not found");
-        toast.error("Student not found");
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!code) {
+        setError("Student code is missing");
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching student data:", error);
-      toast.error("Failed to load student data");
-      setError("Failed to load student data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        const studentData = await getStudentByCode(code);
+        
+        if (studentData) {
+          setStudent(studentData);
+          
+          try {
+            console.log("Fetching student technologies...");
+            const techData = await getStudentTechnologies(code);
+            console.log("Student technologies received:", techData);
+            setTechnologies(techData || []);
+          } catch (techError) {
+            console.error("Error fetching student technologies:", techError);
+            // Don't show error toast for empty technologies - this is normal for new students
+            setTechnologies([]);
+          }
+          
+          // Load available technologies
+          fetchAvailableTechnologies();
+        } else {
+          setError("Student not found");
+          toast.error("Student not found");
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+        toast.error("Failed to load student data");
+        setError("Failed to load student data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [code]);
 
   const handleAddTech = async (newTech: { name: string; level: number }) => {
     if (!newTech.name) {
@@ -104,10 +108,13 @@ export const useStudentDetail = (code: string | undefined) => {
         console.log("Technology added successfully:", tech);
         setTechnologies(prevTechnologies => [...prevTechnologies, tech]);
         toast.success("Technology added successfully");
+      } else {
+        throw new Error("Failed to add technology");
       }
     } catch (error) {
       console.error("Error adding technology:", error);
       toast.error("Failed to add technology");
+      throw error; // Rethrow to allow the component to handle it
     }
   };
 
@@ -128,10 +135,13 @@ export const useStudentDetail = (code: string | undefined) => {
           technologies.map(tech => tech.id === id ? updated : tech)
         );
         toast.success("Technology updated successfully");
+      } else {
+        throw new Error("Failed to update technology");
       }
     } catch (error) {
       console.error("Error updating technology:", error);
       toast.error("Failed to update technology");
+      throw error;
     }
   };
 
@@ -142,16 +152,15 @@ export const useStudentDetail = (code: string | undefined) => {
       if (success) {
         setTechnologies(technologies.filter(tech => tech.id !== id));
         toast.success("Technology deleted successfully");
+      } else {
+        throw new Error("Failed to delete technology");
       }
     } catch (error) {
       console.error("Error deleting technology:", error);
       toast.error("Failed to delete technology");
+      throw error;
     }
   };
-
-  useEffect(() => {
-    fetchStudentData();
-  }, [code]);
 
   return {
     isLoading,

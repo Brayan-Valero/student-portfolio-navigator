@@ -10,7 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useState, useEffect } from "react";
 import { AvailableTechnology, FALLBACK_TECHNOLOGIES } from "@/services/api";
+import { toast } from "sonner";
 
 interface TechnologyFormProps {
   mode: "add" | "edit";
@@ -36,6 +38,25 @@ const TechnologyForm = ({
   const technologies = availableTechnologies && availableTechnologies.length > 0 
     ? availableTechnologies 
     : FALLBACK_TECHNOLOGIES;
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSave = async () => {
+    if (mode === "add" && !currentTech.name) {
+      toast.error("Please select a technology");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await onSave();
+    } catch (error) {
+      console.error("Error saving technology:", error);
+      toast.error("Failed to save technology");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   return (
     <div className="space-y-4">
@@ -80,6 +101,7 @@ const TechnologyForm = ({
           size="sm"
           className="border-gray-200"
           onClick={onCancel}
+          disabled={isSubmitting}
         >
           <X size={14} className="mr-1" />
           Cancel
@@ -87,10 +109,15 @@ const TechnologyForm = ({
         <Button
           size="sm"
           className="bg-orange-500 hover:bg-orange-600 text-white"
-          onClick={onSave}
-          disabled={mode === "add" && !currentTech.name}
+          onClick={handleSave}
+          disabled={(mode === "add" && !currentTech.name) || isSubmitting}
         >
-          {mode === "add" ? (
+          {isSubmitting ? (
+            <span className="flex items-center">
+              <span className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              {mode === "add" ? "Adding..." : "Saving..."}
+            </span>
+          ) : mode === "add" ? (
             <>
               <Plus size={14} className="mr-1" />
               Add Technology
