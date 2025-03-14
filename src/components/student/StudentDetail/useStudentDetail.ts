@@ -42,7 +42,18 @@ export const useStudentDetail = (code: string | undefined) => {
       console.log("Fetching student technologies...");
       const techData = await getStudentTechnologies(studentCode);
       console.log("Student technologies received:", techData);
-      setTechnologies(techData || []);
+      
+      // Map the data to ensure it has consistent properties
+      const mappedTechnologies = techData.map((tech: any) => ({
+        id: tech.id,
+        code: tech.code,
+        name: tech.name,
+        // Ensure we have a consistent level property
+        level: tech.level !== undefined ? tech.level : tech.skill_level
+      }));
+      
+      console.log("Mapped technologies:", mappedTechnologies);
+      setTechnologies(mappedTechnologies || []);
     } catch (techError) {
       console.error("Error fetching student technologies:", techError);
       setTechnologies([]);
@@ -109,11 +120,16 @@ export const useStudentDetail = (code: string | undefined) => {
       // Set loading state
       setIsLoadingTechnologies(true);
       
-      const tech = await addTechnology({
+      // Create payload with the correct field name (skill_level instead of level)
+      const payload = {
         code: code,
         name: newTech.name,
-        level: newTech.level
-      });
+        skill_level: newTech.level // Use skill_level to match the database schema
+      };
+      
+      console.log("Sending payload to addTechnology:", payload);
+      
+      const tech = await addTechnology(payload);
       
       if (tech) {
         console.log("Technology added successfully:", tech);
@@ -138,10 +154,15 @@ export const useStudentDetail = (code: string | undefined) => {
     try {
       setIsLoadingTechnologies(true);
       
-      const updated = await updateTechnology(id, {
+      // Create payload with the correct field name (skill_level instead of level)
+      const payload = {
         name: updatedTech.name,
-        level: updatedTech.level
-      });
+        skill_level: updatedTech.level // Use skill_level to match the database schema
+      };
+      
+      console.log("Sending payload to updateTechnology:", payload);
+      
+      const updated = await updateTechnology(id, payload);
       
       if (updated) {
         // Refresh technologies to get the updated list

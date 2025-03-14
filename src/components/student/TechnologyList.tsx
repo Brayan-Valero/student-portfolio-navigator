@@ -42,7 +42,7 @@ const TechnologyList = ({ technologies, onEdit, onDelete }: TechnologyListProps)
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{tech.name}</h3>
                 <div className="mt-1">
-                  <StarRating value={tech.level} readOnly />
+                  <StarRating value={tech.level || tech.skill_level} readOnly />
                 </div>
               </div>
               
