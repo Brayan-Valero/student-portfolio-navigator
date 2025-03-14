@@ -120,11 +120,11 @@ export const useStudentDetail = (code: string | undefined) => {
       // Set loading state
       setIsLoadingTechnologies(true);
       
-      // Create payload with the correct field name (skill_level instead of level)
+      // Use the level property as is - the API will handle mapping to skill_level
       const payload = {
         code: code,
         name: newTech.name,
-        skill_level: newTech.level // Use skill_level to match the database schema
+        level: newTech.level
       };
       
       console.log("Sending payload to addTechnology:", payload);
@@ -154,10 +154,10 @@ export const useStudentDetail = (code: string | undefined) => {
     try {
       setIsLoadingTechnologies(true);
       
-      // Create payload with the correct field name (skill_level instead of level)
+      // Send the level property directly - the API will handle mapping to skill_level
       const payload = {
         name: updatedTech.name,
-        skill_level: updatedTech.level // Use skill_level to match the database schema
+        level: updatedTech.level
       };
       
       console.log("Sending payload to updateTechnology:", payload);

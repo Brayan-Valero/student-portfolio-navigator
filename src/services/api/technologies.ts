@@ -72,7 +72,7 @@ export const getAvailableTechnologies = async (): Promise<AvailableTechnology[]>
 };
 
 // Add technology with correct field mapping
-export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise<Technology | null> => {
+export const addTechnology = async (technology: Omit<Technology, 'id'> | { code: string; name: string; skill_level: number }): Promise<Technology | null> => {
   try {
     console.log("Adding technology:", technology);
     
@@ -88,7 +88,9 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
     const payload = {
       code: technology.code,
       name: technology.name,
-      skill_level: technology.level // Rename to match database schema
+      // Check if we have level or skill_level in the input
+      skill_level: 'level' in technology ? technology.level : 
+                   'skill_level' in technology ? technology.skill_level : 3
     };
     
     console.log("Sending payload to API:", payload);
@@ -126,14 +128,20 @@ export const addTechnology = async (technology: Omit<Technology, 'id'>): Promise
 };
 
 // Update technology with correct field mapping
-export const updateTechnology = async (id: number, technology: Partial<Technology>): Promise<Technology | null> => {
+export const updateTechnology = async (id: number, technology: Partial<Technology> | { name?: string; skill_level?: number }): Promise<Technology | null> => {
   try {
     console.log(`Updating technology with ID ${id}:`, technology);
     
     // Prepare the payload based on database schema
     const payload: any = {};
     if (technology.name) payload.name = technology.name;
-    if (technology.level !== undefined) payload.skill_level = technology.level;
+    
+    // Use skill_level in the database, mapping from level if it exists
+    if ('level' in technology && technology.level !== undefined) {
+      payload.skill_level = technology.level;
+    } else if ('skill_level' in technology && technology.skill_level !== undefined) {
+      payload.skill_level = technology.skill_level;
+    }
     
     console.log("Update payload:", payload);
     
@@ -158,7 +166,7 @@ export const updateTechnology = async (id: number, technology: Partial<Technolog
         id: data[0].id,
         code: data[0].code,
         name: data[0].name,
-        level: data[0].skill_level || technology.level || 3
+        level: data[0].skill_level || ('level' in technology ? technology.level : 3)
       };
     }
     return null;
